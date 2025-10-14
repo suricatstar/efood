@@ -1,7 +1,10 @@
 import styled from 'styled-components'
-import { useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import Header from '../../components/Header/header.component'
 import { colors } from '../../styles/GlobalStyles'
+import { restaurants, type MenuItem } from '../../data/restaurants'
+import { useState } from 'react'
+import ProductModal from '../../components/Modal/modal.component'
 
 const Banner = styled.div`
   width: 100%;
@@ -51,7 +54,7 @@ const MenuGrid = styled.div`
   gap: 32px;
 `
 
-const MenuItem = styled.div`
+const MenuItemStyle = styled.div`
   background-color: ${colors.primary};
   padding: 8px;
 `
@@ -85,41 +88,68 @@ const AddButton = styled.button`
   width: 100%;
 `
 
-const menuItems = [
-  {
-    id: 1,
-    name: 'Pizza Marguerita',
-    description: 'A clássica Marguerita: molho de tomate suculento, mussarela derretida, manjericão fresco e um toque de azeite. Sabor e simplicidade!',
-    image: '/pizza.jpg',
-    portion: 'Serve de 2 a 3 pessoas',
-    price: 60.90
-  }
-]
+const DivContainer = styled.div`
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 56px;
+    height: 100%;
+
+`
 
 const Restaurant = () => {
   const { id } = useParams()
+// const { addToCart } = useCart()
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
+  const restaurant = restaurants.find(r => r.id === Number(id))
+
+  if (!restaurant) {
+    return <Navigate to="/" replace/>
+  }
+
+  const handleOpenModal = (item: MenuItem) => {
+    setSelectedItem(item)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedItem(null)
+  }
+
+  // const handleAddToCart = (item: MenuItemType) => {
+  //   addToCart(item)
+  // }
   return (
     <>
       <Header />
-      <Banner style={{ backgroundImage: 'url(/restaurant-banner.jpg)' }}>
-        <div className="container">
+      {/* <Cart /> */}
+      <ProductModal 
+        isOpen={isModalOpen}
+        item={selectedItem}
+        onClose={handleCloseModal}
+      />
+      <Banner style={{ backgroundImage: `url(${restaurant.banner})` }}>
+        <DivContainer>
           <BannerContent>
-            <Category>Italiana</Category>
-            <RestaurantName>La Dolce Vita Trattoria</RestaurantName>
+            <Category>{restaurant.category}</Category>
+            <RestaurantName>{restaurant.name}</RestaurantName>
           </BannerContent>
-        </div>
+        </DivContainer>
       </Banner>
       <MenuSection>
         <div className="container">
           <MenuGrid>
-            {menuItems.map((item) => (
-              <MenuItem key={item.id}>
+            {restaurant.menu.map((item) => (
+              <MenuItemStyle key={item.id}>
                 <MenuImage src={item.image} alt={item.name} />
                 <MenuTitle>{item.name}</MenuTitle>
                 <MenuDescription>{item.description}</MenuDescription>
-                <AddButton>Adicionar ao carrinho</AddButton>
-              </MenuItem>
+                <AddButton onClick={() => handleOpenModal(item)}>
+                  Adicionar ao carrinho
+                </AddButton>
+              </MenuItemStyle>
             ))}
           </MenuGrid>
         </div>
