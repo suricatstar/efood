@@ -1,175 +1,7 @@
-import styled from 'styled-components'
-import { colors } from '../../styles/GlobalStyles'
 import { useCart } from '../../contexts/cart.context'
 import { useState } from 'react'
 import type { DeliveryInfo, PaymentInfo } from '../../types/checkout.types'
-
-const Overlay = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: ${(props) => (props.$isOpen ? 'block' : 'none')};
-  z-index: 999;
-`
-
-const Sidebar = styled.aside<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  right: ${(props) => (props.$isOpen ? '0' : '-360px')};
-  width: 360px;
-  height: 100%;
-  background-color: ${colors.primary};
-  padding: 32px 8px;
-  z-index: 1000;
-  transition: right 0.3s ease-in-out;
-  overflow-y: auto;
-`
-
-const CartItem = styled.div`
-  background-color: ${colors.secondary};
-  padding: 8px;
-  margin-bottom: 16px;
-  display: flex;
-  gap: 8px;
-  position: relative;
-`
-
-const CartItemImage = styled.img`
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-`
-
-const CartItemInfo = styled.div`
-  flex: 1;
-`
-
-const CartItemTitle = styled.h4`
-  font-size: 18px;
-  font-weight: 900;
-  color: ${colors.primary};
-  margin-bottom: 16px;
-`
-
-const CartItemPrice = styled.p`
-  font-size: 14px;
-  color: ${colors.primary};
-  font-weight: 400;
-`
-
-const RemoveButton = styled.button`
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: ${colors.primary};
-  font-size: 16px;
-  
-  &:hover {
-    opacity: 0.7;
-  }
-`
-
-const TotalPrice = styled.div`
-  display: flex;
-  justify-content: space-between;
-  color: ${colors.secondary};
-  font-size: 14px;
-  font-weight: 700;
-  margin-top: 40px;
-  margin-bottom: 16px;
-`
-
-const Button = styled.button`
-  width: 100%;
-  background-color: ${colors.secondary};
-  color: ${colors.primary};
-  padding: 4px;
-  font-size: 14px;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  margin-bottom: 8px;
-  
-  &:hover {
-    opacity: 0.9;
-  }
-`
-
-const EmptyCart = styled.p`
-  color: ${colors.secondary};
-  text-align: center;
-  font-size: 14px;
-  margin-top: 100px;
-`
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`
-
-const FormTitle = styled.h3`
-  font-size: 16px;
-  font-weight: 700;
-  color: ${colors.secondary};
-  margin-bottom: 16px;
-`
-
-const Label = styled.label`
-  font-size: 14px;
-  font-weight: 700;
-  color: ${colors.secondary};
-  margin-bottom: 8px;
-`
-
-const Input = styled.input`
-  width: 100%;
-  padding: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  color: ${colors.dark};
-  background-color: ${colors.secondary};
-  border: none;
-  margin-bottom: 8px;
-  
-  &::placeholder {
-    color: ${colors.dark};
-  }
-`
-
-const InputRow = styled.div`
-  display: flex;
-  gap: 34px;
-  
-  > div {
-    flex: 1;
-  }
-`
-
-const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const ConfirmationText = styled.p`
-  font-size: 14px;
-  line-height: 22px;
-  color: ${colors.secondary};
-  margin-bottom: 24px;
-`
-
-const OrderId = styled.p`
-  font-size: 14px;
-  line-height: 22px;
-  color: ${colors.secondary};
-  margin-bottom: 24px;
-`
+import * as S from './cart.styles'
 
 const Cart = () => {
   const { 
@@ -230,36 +62,36 @@ const Cart = () => {
 
   return (
     <>
-      <Overlay $isOpen={isOpen} onClick={toggleCart} />
-      <Sidebar $isOpen={isOpen}>
+      <S.Overlay $isOpen={isOpen} onClick={toggleCart} />
+      <S.Sidebar $isOpen={isOpen}>
         {/* ETAPA 1: CARRINHO */}
         {currentStep === 'cart' && (
           <>
             {items.length === 0 ? (
-              <EmptyCart>
+              <S.EmptyCart>
                 O carrinho está vazio. Adicione produtos para continuar com a compra.
-              </EmptyCart>
+              </S.EmptyCart>
             ) : (
               <>
                 {items.map((item) => (
-                  <CartItem key={item.id}>
-                    <CartItemImage src={item.image} alt={item.name} />
-                    <CartItemInfo>
-                      <CartItemTitle>{item.name}</CartItemTitle>
-                      <CartItemPrice>R$ {item.price.toFixed(2)}</CartItemPrice>
-                    </CartItemInfo>
-                    <RemoveButton onClick={() => removeFromCart(item.id)}>
+                  <S.CartItem key={item.id}>
+                    <S.CartItemImage src={item.image} alt={item.name} />
+                    <S.CartItemInfo>
+                      <S.CartItemTitle>{item.name}</S.CartItemTitle>
+                      <S.CartItemPrice>R$ {item.price.toFixed(2)}</S.CartItemPrice>
+                    </S.CartItemInfo>
+                    <S.RemoveButton onClick={() => removeFromCart(item.id)}>
                       🗑️
-                    </RemoveButton>
-                  </CartItem>
+                    </S.RemoveButton>
+                  </S.CartItem>
                 ))}
-                <TotalPrice>
+                <S.TotalPrice>
                   <span>Valor total</span>
                   <span>R$ {getTotalPrice().toFixed(2)}</span>
-                </TotalPrice>
-                <Button onClick={() => setStep('delivery')}>
+                </S.TotalPrice>
+                <S.Button onClick={() => setStep('delivery')}>
                   Continuar com a entrega
-                </Button>
+                </S.Button>
               </>
             )}
           </>
@@ -268,10 +100,10 @@ const Cart = () => {
         {/* ETAPA 2: ENTREGA */}
         {currentStep === 'delivery' && (
           <>
-            <FormTitle>Entrega</FormTitle>
-            <Form onSubmit={handleDeliverySubmit}>
-              <Label htmlFor="receiver">Quem irá receber</Label>
-              <Input
+            <S.FormTitle>Entrega</S.FormTitle>
+            <S.Form onSubmit={handleDeliverySubmit}>
+              <S.Label htmlFor="receiver">Quem irá receber</S.Label>
+              <S.Input
                 type="text"
                 id="receiver"
                 value={delivery.receiver}
@@ -279,8 +111,8 @@ const Cart = () => {
                 required
               />
 
-              <Label htmlFor="address">Endereço</Label>
-              <Input
+              <S.Label htmlFor="address">Endereço</S.Label>
+              <S.Input
                 type="text"
                 id="address"
                 value={delivery.address}
@@ -288,8 +120,8 @@ const Cart = () => {
                 required
               />
 
-              <Label htmlFor="city">Cidade</Label>
-              <Input
+              <S.Label htmlFor="city">Cidade</S.Label>
+              <S.Input
                 type="text"
                 id="city"
                 value={delivery.city}
@@ -297,10 +129,10 @@ const Cart = () => {
                 required
               />
 
-              <InputRow>
-                <InputGroup>
-                  <Label htmlFor="zipCode">CEP</Label>
-                  <Input
+              <S.InputRow>
+                <S.InputGroup>
+                  <S.Label htmlFor="zipCode">CEP</S.Label>
+                  <S.Input
                     type="text"
                     id="zipCode"
                     value={delivery.zipCode}
@@ -308,43 +140,43 @@ const Cart = () => {
                     maxLength={9}
                     required
                   />
-                </InputGroup>
+                </S.InputGroup>
 
-                <InputGroup>
-                  <Label htmlFor="number">Número</Label>
-                  <Input
+                <S.InputGroup>
+                  <S.Label htmlFor="number">Número</S.Label>
+                  <S.Input
                     type="text"
                     id="number"
                     value={delivery.number}
                     onChange={(e) => setDelivery({ ...delivery, number: e.target.value })}
                     required
                   />
-                </InputGroup>
-              </InputRow>
+                </S.InputGroup>
+              </S.InputRow>
 
-              <Label htmlFor="complement">Complemento (opcional)</Label>
-              <Input
+              <S.Label htmlFor="complement">Complemento (opcional)</S.Label>
+              <S.Input
                 type="text"
                 id="complement"
                 value={delivery.complement}
                 onChange={(e) => setDelivery({ ...delivery, complement: e.target.value })}
               />
 
-              <Button type="submit">Continuar com o pagamento</Button>
-              <Button type="button" onClick={handleBackToCart}>
+              <S.Button type="submit">Continuar com o pagamento</S.Button>
+              <S.Button type="button" onClick={handleBackToCart}>
                 Voltar para o carrinho
-              </Button>
-            </Form>
+              </S.Button>
+            </S.Form>
           </>
         )}
 
         {/* ETAPA 3: PAGAMENTO */}
         {currentStep === 'payment' && (
           <>
-            <FormTitle>Pagamento - Valor a pagar R$ {getTotalPrice().toFixed(2)}</FormTitle>
-            <Form onSubmit={handlePaymentSubmit}>
-              <Label htmlFor="cardName">Nome no cartão</Label>
-              <Input
+            <S.FormTitle>Pagamento - Valor a pagar R$ {getTotalPrice().toFixed(2)}</S.FormTitle>
+            <S.Form onSubmit={handlePaymentSubmit}>
+              <S.Label htmlFor="cardName">Nome no cartão</S.Label>
+              <S.Input
                 type="text"
                 id="cardName"
                 value={payment.cardName}
@@ -352,10 +184,10 @@ const Cart = () => {
                 required
               />
 
-              <InputRow>
-                <InputGroup>
-                  <Label htmlFor="cardNumber">Número do cartão</Label>
-                  <Input
+              <S.InputRow>
+                <S.InputGroup>
+                  <S.Label htmlFor="cardNumber">Número do cartão</S.Label>
+                  <S.Input
                     type="text"
                     id="cardNumber"
                     value={payment.cardNumber}
@@ -363,11 +195,11 @@ const Cart = () => {
                     maxLength={16}
                     required
                   />
-                </InputGroup>
+                </S.InputGroup>
 
-                <InputGroup>
-                  <Label htmlFor="cardCode">CVV</Label>
-                  <Input
+                <S.InputGroup>
+                  <S.Label htmlFor="cardCode">CVV</S.Label>
+                  <S.Input
                     type="text"
                     id="cardCode"
                     value={payment.cardCode}
@@ -375,13 +207,13 @@ const Cart = () => {
                     maxLength={3}
                     required
                   />
-                </InputGroup>
-              </InputRow>
+                </S.InputGroup>
+              </S.InputRow>
 
-              <InputRow>
-                <InputGroup>
-                  <Label htmlFor="expiresMonth">Mês de vencimento</Label>
-                  <Input
+              <S.InputRow>
+                <S.InputGroup>
+                  <S.Label htmlFor="expiresMonth">Mês de vencimento</S.Label>
+                  <S.Input
                     type="text"
                     id="expiresMonth"
                     value={payment.expiresMonth}
@@ -390,11 +222,11 @@ const Cart = () => {
                     placeholder="MM"
                     required
                   />
-                </InputGroup>
+                </S.InputGroup>
 
-                <InputGroup>
-                  <Label htmlFor="expiresYear">Ano de vencimento</Label>
-                  <Input
+                <S.InputGroup>
+                  <S.Label htmlFor="expiresYear">Ano de vencimento</S.Label>
+                  <S.Input
                     type="text"
                     id="expiresYear"
                     value={payment.expiresYear}
@@ -403,37 +235,37 @@ const Cart = () => {
                     placeholder="AAAA"
                     required
                   />
-                </InputGroup>
-              </InputRow>
+                </S.InputGroup>
+              </S.InputRow>
 
-              <Button type="submit">Finalizar pagamento</Button>
-              <Button type="button" onClick={handleBackToDelivery}>
+              <S.Button type="submit">Finalizar pagamento</S.Button>
+              <S.Button type="button" onClick={handleBackToDelivery}>
                 Voltar para a edição de endereço
-              </Button>
-            </Form>
+              </S.Button>
+            </S.Form>
           </>
         )}
 
         {/* ETAPA 4: CONFIRMAÇÃO */}
         {currentStep === 'confirmation' && (
           <>
-            <FormTitle>Pedido realizado - ORDER_ID_12345</FormTitle>
-            <ConfirmationText>
+            <S.FormTitle>Pedido realizado - ORDER_ID_12345</S.FormTitle>
+            <S.ConfirmationText>
               Estamos felizes em informar que seu pedido já está em processo de preparação e, em breve, será entregue no endereço fornecido.
-            </ConfirmationText>
-            <ConfirmationText>
+            </S.ConfirmationText>
+            <S.ConfirmationText>
               Gostaríamos de ressaltar que nossos entregadores não estão autorizados a realizar cobranças extras.
-            </ConfirmationText>
-            <ConfirmationText>
+            </S.ConfirmationText>
+            <S.ConfirmationText>
               Lembre-se da importância de higienizar as mãos após o recebimento do pedido, garantindo assim sua segurança e bem-estar durante a refeição.
-            </ConfirmationText>
-            <ConfirmationText>
+            </S.ConfirmationText>
+            <S.ConfirmationText>
               Esperamos que desfrute de uma deliciosa e agradável experiência gastronômica. Bom apetite!
-            </ConfirmationText>
-            <Button onClick={handleFinish}>Concluir</Button>
+            </S.ConfirmationText>
+            <S.Button onClick={handleFinish}>Concluir</S.Button>
           </>
         )}
-      </Sidebar>
+      </S.Sidebar>
     </>
   )
 }
