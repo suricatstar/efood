@@ -2,6 +2,7 @@ import { useCart } from '../../contexts/cart.context'
 import { useState } from 'react'
 import type { DeliveryInfo, PaymentInfo } from '../../types/checkout.types'
 import * as S from './cart.styles'
+import { CiTrash } from "react-icons/ci";
 
 const Cart = () => {
   const { 
@@ -81,7 +82,7 @@ const Cart = () => {
                       <S.CartItemPrice>R$ {item.price.toFixed(2)}</S.CartItemPrice>
                     </S.CartItemInfo>
                     <S.RemoveButton onClick={() => removeFromCart(item.id)}>
-                      🗑️
+                      <CiTrash size={24} />
                     </S.RemoveButton>
                   </S.CartItem>
                 ))}
