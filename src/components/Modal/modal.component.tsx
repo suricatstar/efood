@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { colors } from '../../styles/GlobalStyles'
 import type { MenuItem } from '../../data/restaurants'
+import { useCart } from '../../contexts/cart.context'
 
 const Overlay = styled.div<{ $isOpen: boolean }>`
   position: fixed;
@@ -41,9 +42,8 @@ const CloseButton = styled.button`
   align-items: center;
   justify-content: center;
   
-  img {
-    width: 16px;
-    height: 16px;
+  &:hover {
+    opacity: 0.7;
   }
 `
 
@@ -99,14 +99,15 @@ type ProductModalProps = {
   isOpen: boolean
   item: MenuItem | null
   onClose: () => void
-//   onAddToCart: (item: MenuItem) => void
 }
 
 const ProductModal = ({ isOpen, item, onClose }: ProductModalProps) => {
+  const { addToCart } = useCart()
+
   if (!item) return null
 
   const handleAddToCart = () => {
-    // onAddToCart(item)
+    addToCart(item)
     onClose()
   }
 

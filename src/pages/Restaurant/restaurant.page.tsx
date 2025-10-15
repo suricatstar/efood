@@ -5,6 +5,7 @@ import { colors } from '../../styles/GlobalStyles'
 import { restaurants, type MenuItem } from '../../data/restaurants'
 import { useState } from 'react'
 import ProductModal from '../../components/Modal/modal.component'
+import Cart from '../../components/Carrinho/cart.component'
 
 const Banner = styled.div`
   width: 100%;
@@ -57,6 +58,8 @@ const MenuGrid = styled.div`
 const MenuItemStyle = styled.div`
   background-color: ${colors.primary};
   padding: 8px;
+  display: flex;
+  flex-direction: column;
 `
 
 const MenuImage = styled.img`
@@ -77,6 +80,7 @@ const MenuDescription = styled.p`
   line-height: 22px;
   color: ${colors.secondary};
   margin-bottom: 8px;
+  flex: 1;
 `
 
 const AddButton = styled.button`
@@ -86,19 +90,22 @@ const AddButton = styled.button`
   font-size: 14px;
   font-weight: 700;
   width: 100%;
+  margin-top: auto;
+  
+  &:hover {
+    opacity: 0.9;
+  }
 `
 
 const DivContainer = styled.div`
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 56px;
-    height: 100%;
-
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 56px;
+  height: 100%;
 `
 
 const Restaurant = () => {
   const { id } = useParams()
-// const { addToCart } = useCart()
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -118,13 +125,10 @@ const Restaurant = () => {
     setSelectedItem(null)
   }
 
-  // const handleAddToCart = (item: MenuItemType) => {
-  //   addToCart(item)
-  // }
   return (
     <>
       <Header />
-      {/* <Cart /> */}
+      <Cart />
       <ProductModal 
         isOpen={isModalOpen}
         item={selectedItem}
@@ -147,7 +151,7 @@ const Restaurant = () => {
                 <MenuTitle>{item.name}</MenuTitle>
                 <MenuDescription>{item.description}</MenuDescription>
                 <AddButton onClick={() => handleOpenModal(item)}>
-                  Adicionar ao carrinho
+                  Mais detalhes
                 </AddButton>
               </MenuItemStyle>
             ))}
