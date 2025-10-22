@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import type { MenuItem } from '../data/restaurants'
+import type { MenuItem } from '../types/api.types'
 import type { DeliveryInfo, PaymentInfo, CheckoutStep } from '../types/checkout.types'
 
 type CartItem = MenuItem & {
@@ -64,7 +64,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const getTotalPrice = () => {
-    return items.reduce((total, item) => total + item.price * item.quantity, 0)
+    return items.reduce((total, item) => total + item.preco * item.quantity, 0)
   }
 
   const getTotalItems = () => {

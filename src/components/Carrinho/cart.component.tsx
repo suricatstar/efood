@@ -2,7 +2,7 @@ import { useCart } from '../../contexts/cart.context'
 import { useState } from 'react'
 import type { DeliveryInfo, PaymentInfo } from '../../types/checkout.types'
 import * as S from './cart.styles'
-import { CiTrash } from "react-icons/ci";
+import { CiTrash } from "react-icons/ci"
 
 const Cart = () => {
   const { 
@@ -76,10 +76,10 @@ const Cart = () => {
               <>
                 {items.map((item) => (
                   <S.CartItem key={item.id}>
-                    <S.CartItemImage src={item.image} alt={item.name} />
+                    <S.CartItemImage src={item.foto} alt={item.nome} />
                     <S.CartItemInfo>
-                      <S.CartItemTitle>{item.name}</S.CartItemTitle>
-                      <S.CartItemPrice>R$ {item.price.toFixed(2)}</S.CartItemPrice>
+                      <S.CartItemTitle>{item.nome}</S.CartItemTitle>
+                      <S.CartItemPrice>R$ {item.preco.toFixed(2)}</S.CartItemPrice>
                     </S.CartItemInfo>
                     <S.RemoveButton onClick={() => removeFromCart(item.id)}>
                       <CiTrash size={24} />

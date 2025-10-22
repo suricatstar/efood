@@ -101,3 +101,15 @@ export const Container = styled.div`
   padding: 0 56px;
   height: 100%;
 `
+
+export const LoadingContainer = styled.div`
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+export const LoadingMessage = styled.p`
+  font-size: 18px;
+  color: ${colors.primary};
+`
