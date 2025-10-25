@@ -1,24 +1,20 @@
-import { useCart } from '../../contexts/cart.context'
+import { useAppSelector, useAppDispatch } from '../../store/hooks'
+import { removeFromCart, clearCart, toggleCart } from '../../store/reducers/cart.slice'
 import { useState } from 'react'
 import type { DeliveryInfo, PaymentInfo } from '../../types/checkout.types'
 import * as S from './cart.styles'
 import { CiTrash } from "react-icons/ci"
 
 const Cart = () => {
-  const { 
-    items, 
-    isOpen, 
-    currentStep,
-    removeFromCart, 
-    toggleCart, 
-    getTotalPrice,
-    setStep,
-    setDeliveryInfo,
-    setPaymentInfo,
-    finishOrder,
-    clearCart
-  } = useCart()
-
+  // LER dados do Redux
+  const items = useAppSelector(state => state.cart.items)
+  const isOpen = useAppSelector(state => state.cart.isOpen)
+  
+  // FAZER ações no Redux
+  const dispatch = useAppDispatch()
+  
+  // Estado local para formulários
+  const [currentStep, setCurrentStep] = useState<'cart' | 'delivery' | 'payment' | 'confirmation'>('cart')
   const [delivery, setDelivery] = useState<DeliveryInfo>({
     receiver: '',
     address: '',
@@ -27,7 +23,6 @@ const Cart = () => {
     number: '',
     complement: ''
   })
-
   const [payment, setPayment] = useState<PaymentInfo>({
     cardName: '',
     cardNumber: '',
@@ -36,34 +31,37 @@ const Cart = () => {
     expiresYear: ''
   })
 
+  // CALCULAR TOTAL
+  const getTotalPrice = () => {
+    return items.reduce((total, item) => total + item.preco * item.quantity, 0)
+  }
+
+  // HANDLERS (funções que fazem coisas)
+  const handleRemoveItem = (id: number) => {
+    dispatch(removeFromCart(id)) // Dispara a ação de remover
+  }
+
+  const handleToggleCart = () => {
+    dispatch(toggleCart()) // Dispara a ação de abrir/fechar
+  }
+
+  const handleClearCart = () => {
+    dispatch(clearCart()) // Dispara a ação de limpar
+  }
+
   const handleDeliverySubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setDeliveryInfo(delivery)
-    setStep('payment')
+    setCurrentStep('payment')
   }
 
   const handlePaymentSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setPaymentInfo(payment)
-    finishOrder()
-  }
-
-  const handleBackToCart = () => {
-    setStep('cart')
-  }
-
-  const handleBackToDelivery = () => {
-    setStep('delivery')
-  }
-
-  const handleFinish = () => {
-    clearCart()
-    toggleCart()
+    setCurrentStep('confirmation')
   }
 
   return (
     <>
-      <S.Overlay $isOpen={isOpen} onClick={toggleCart} />
+      <S.Overlay $isOpen={isOpen} onClick={handleToggleCart} />
       <S.Sidebar $isOpen={isOpen}>
         {/* ETAPA 1: CARRINHO */}
         {currentStep === 'cart' && (
@@ -80,8 +78,11 @@ const Cart = () => {
                     <S.CartItemInfo>
                       <S.CartItemTitle>{item.nome}</S.CartItemTitle>
                       <S.CartItemPrice>R$ {item.preco.toFixed(2)}</S.CartItemPrice>
+                      {item.quantity > 1 && (
+                        <S.CartItemPrice>Quantidade: {item.quantity}</S.CartItemPrice>
+                      )}
                     </S.CartItemInfo>
-                    <S.RemoveButton onClick={() => removeFromCart(item.id)}>
+                    <S.RemoveButton onClick={() => handleRemoveItem(item.id)}>
                       <CiTrash size={24} />
                     </S.RemoveButton>
                   </S.CartItem>
@@ -90,7 +91,7 @@ const Cart = () => {
                   <span>Valor total</span>
                   <span>R$ {getTotalPrice().toFixed(2)}</span>
                 </S.TotalPrice>
-                <S.Button onClick={() => setStep('delivery')}>
+                <S.Button onClick={() => setCurrentStep('delivery')}>
                   Continuar com a entrega
                 </S.Button>
               </>
@@ -164,7 +165,7 @@ const Cart = () => {
               />
 
               <S.Button type="submit">Continuar com o pagamento</S.Button>
-              <S.Button type="button" onClick={handleBackToCart}>
+              <S.Button type="button" onClick={() => setCurrentStep('cart')}>
                 Voltar para o carrinho
               </S.Button>
             </S.Form>
@@ -240,7 +241,7 @@ const Cart = () => {
               </S.InputRow>
 
               <S.Button type="submit">Finalizar pagamento</S.Button>
-              <S.Button type="button" onClick={handleBackToDelivery}>
+              <S.Button type="button" onClick={() => setCurrentStep('delivery')}>
                 Voltar para a edição de endereço
               </S.Button>
             </S.Form>
@@ -250,7 +251,7 @@ const Cart = () => {
         {/* ETAPA 4: CONFIRMAÇÃO */}
         {currentStep === 'confirmation' && (
           <>
-            <S.FormTitle>Pedido realizado - ORDER_ID_12345</S.FormTitle>
+            <S.FormTitle>Pedido realizado - ORDER_12345</S.FormTitle>
             <S.ConfirmationText>
               Estamos felizes em informar que seu pedido já está em processo de preparação e, em breve, será entregue no endereço fornecido.
             </S.ConfirmationText>
@@ -263,7 +264,12 @@ const Cart = () => {
             <S.ConfirmationText>
               Esperamos que desfrute de uma deliciosa e agradável experiência gastronômica. Bom apetite!
             </S.ConfirmationText>
-            <S.Button onClick={handleFinish}>Concluir</S.Button>
+            <S.Button onClick={() => {
+              handleClearCart()
+              handleToggleCart()
+            }}>
+              Concluir
+            </S.Button>
           </>
         )}
       </S.Sidebar>

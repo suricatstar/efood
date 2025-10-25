@@ -1,5 +1,6 @@
 import type { MenuItem } from '../../types/api.types'
-import { useCart } from '../../contexts/cart.context'
+import { useAppDispatch } from '../../store/hooks'
+import { addToCart } from '../../store/reducers/cart.slice'
 import * as S from './modal.styles'
 
 type ProductModalProps = {
@@ -9,12 +10,12 @@ type ProductModalProps = {
 }
 
 const ProductModal = ({ isOpen, item, onClose }: ProductModalProps) => {
-  const { addToCart } = useCart()
+  const dispatch = useAppDispatch()
 
   if (!item) return null
 
   const handleAddToCart = () => {
-    addToCart(item)
+    dispatch(addToCart(item)) // Adiciona ao Redux
     onClose()
   }
 
