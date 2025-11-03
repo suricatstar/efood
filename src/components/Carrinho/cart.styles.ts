@@ -160,3 +160,13 @@ export const ConfirmationText = styled.p`
   color: ${colors.secondary};
   margin-bottom: 24px;
 `
+
+export const ErrorMessage = styled.p`
+  color: ${colors.secondary};
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin: 8px 0;
+  text-align: center;
+`

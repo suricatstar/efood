@@ -16,3 +16,9 @@ export type PaymentInfo = {
 }
 
 export type CheckoutStep = 'cart' | 'delivery' | 'payment' | 'confirmation'
+
+export type OrderConfirmation = {
+  orderId: string
+  isLoading: boolean
+  error: string | null
+}

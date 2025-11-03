@@ -1,7 +1,8 @@
 import { useAppSelector, useAppDispatch } from '../../store/hooks'
 import { removeFromCart, clearCart, toggleCart } from '../../store/reducers/cart.slice'
 import { useState } from 'react'
-import type { DeliveryInfo, PaymentInfo } from '../../types/checkout.types'
+import type { DeliveryInfo, PaymentInfo, OrderConfirmation } from '../../types/checkout.types'
+import { createOrder } from '../../services/CheckoutApi'
 import * as S from './cart.styles'
 import { CiTrash } from "react-icons/ci"
 
@@ -30,6 +31,13 @@ const Cart = () => {
     expiresMonth: '',
     expiresYear: ''
   })
+  
+  // NOVO: estado para confirmação do pedido
+  const [orderConfirmation, setOrderConfirmation] = useState<OrderConfirmation>({
+    orderId: '',
+    isLoading: false,
+    error: null
+  })
 
   // CALCULAR TOTAL
   const getTotalPrice = () => {
@@ -38,15 +46,36 @@ const Cart = () => {
 
   // HANDLERS (funções que fazem coisas)
   const handleRemoveItem = (id: number) => {
-    dispatch(removeFromCart(id)) // Dispara a ação de remover
+    dispatch(removeFromCart(id))
   }
 
   const handleToggleCart = () => {
-    dispatch(toggleCart()) // Dispara a ação de abrir/fechar
+    dispatch(toggleCart())
   }
 
   const handleClearCart = () => {
-    dispatch(clearCart()) // Dispara a ação de limpar
+    dispatch(clearCart())
+    setCurrentStep('cart')
+    setDelivery({
+      receiver: '',
+      address: '',
+      city: '',
+      zipCode: '',
+      number: '',
+      complement: ''
+    })
+    setPayment({
+      cardName: '',
+      cardNumber: '',
+      cardCode: '',
+      expiresMonth: '',
+      expiresYear: ''
+    })
+    setOrderConfirmation({
+      orderId: '',
+      isLoading: false,
+      error: null
+    })
   }
 
   const handleDeliverySubmit = (e: React.FormEvent) => {
@@ -54,9 +83,38 @@ const Cart = () => {
     setCurrentStep('payment')
   }
 
-  const handlePaymentSubmit = (e: React.FormEvent) => {
+  // NOVO: handler para enviar pedido para API
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setCurrentStep('confirmation')
+    
+    setOrderConfirmation({ orderId: '', isLoading: true, error: null })
+    
+    try {
+      // Preparar dados dos produtos para a API
+      const products = items.map(item => ({
+        id: item.id,
+        price: item.preco
+      }))
+      
+      // Fazer requisição para API
+      const response = await createOrder(products, delivery, payment)
+      
+      // Atualizar estado com resposta
+      setOrderConfirmation({
+        orderId: response.orderId,
+        isLoading: false,
+        error: null
+      })
+      
+      // Ir para tela de confirmação
+      setCurrentStep('confirmation')
+    } catch (error) {
+      setOrderConfirmation({
+        orderId: '',
+        isLoading: false,
+        error: `Erro ao finalizar pedido. Tente novamente. ${error}`
+      })
+    }
   }
 
   return (
@@ -240,8 +298,14 @@ const Cart = () => {
                 </S.InputGroup>
               </S.InputRow>
 
-              <S.Button type="submit">Finalizar pagamento</S.Button>
-              <S.Button type="button" onClick={() => setCurrentStep('delivery')}>
+              {orderConfirmation.error && (
+                <S.ErrorMessage>{orderConfirmation.error}</S.ErrorMessage>
+              )}
+
+              <S.Button type="submit" disabled={orderConfirmation.isLoading}>
+                {orderConfirmation.isLoading ? 'Processando...' : 'Finalizar pagamento'}
+              </S.Button>
+              <S.Button type="button" onClick={() => setCurrentStep('delivery')} disabled={orderConfirmation.isLoading}>
                 Voltar para a edição de endereço
               </S.Button>
             </S.Form>
@@ -251,7 +315,7 @@ const Cart = () => {
         {/* ETAPA 4: CONFIRMAÇÃO */}
         {currentStep === 'confirmation' && (
           <>
-            <S.FormTitle>Pedido realizado - ORDER_12345</S.FormTitle>
+            <S.FormTitle>Pedido realizado - {orderConfirmation.orderId}</S.FormTitle>
             <S.ConfirmationText>
               Estamos felizes em informar que seu pedido já está em processo de preparação e, em breve, será entregue no endereço fornecido.
             </S.ConfirmationText>
