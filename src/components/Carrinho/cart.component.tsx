@@ -39,6 +39,83 @@ const Cart = () => {
     error: null
   })
 
+  // FORMATAÇÃO
+
+  const formatCEP = (value: string) => {
+    const numbersOnly = value.replace(/\D/g, '')
+    const limitdNumbers = numbersOnly.slice(0, 8)
+    if (limitdNumbers.length > 5) {
+      return `${limitdNumbers.slice(0,5)}-${limitdNumbers.slice(5)}`
+    }
+    return limitdNumbers
+  };
+
+  const formatCardNumber = (value: string) => {
+    const numbersOnly = value.replace(/\D/g, '')
+
+    return numbersOnly.slice(0, 16)
+  };
+
+  const formatCVV = (value: string) => {
+    const numbersOnly = value.replace(/\D/g, '')
+
+    return numbersOnly.slice(0, 3)
+  };
+
+  const formatMonth = (value: string) => {
+    const numbersOnly = value.replace(/\D/g, '')
+
+    const limitedNumbers = numbersOnly.slice(0, 2)
+
+    const month = parseInt(limitedNumbers, 10)
+    if (limitedNumbers.length ===2 && (month < 1 || month > 12)) {
+      return limitedNumbers.slice(0,1)
+    }
+    return limitedNumbers
+  };
+
+  const formatYear = (value: string) => {
+    const numbersOnly = value.replace(/\D/g, '')
+
+    return numbersOnly.slice(0, 4)
+  };
+
+  const formatOnlyNumbers = (value: string): string => {
+    return value.replace(/\D/g, '')
+  };
+
+  const formatOnlyLetters = (value: string): string => {
+    return value.replace(/[^a-zA-Z\s]/g, '')
+  };
+
+  // VALIDAÇÃO
+
+  const isValidCEP = (cep: string): boolean => {
+    const numbers = cep.replace(/\D/g, '')
+    return numbers.length === 8
+  };
+
+  const isValidCardNumber = (cardNumber: string): boolean => {
+    return cardNumber.length === 16
+  };
+
+  const isValidCVV = (cvv: string): boolean => {
+    const numbers = formatOnlyNumbers(cvv)
+    return numbers.length === 3
+  };
+
+  const isValidMonth = (month: string): boolean => {
+    const monthNum = parseInt(month, 10)
+    return month.length === 2 && monthNum >= 1 && monthNum <= 12
+  };
+
+  const isValidYear = (year: string): boolean => {
+    if (year.length !== 4) return false
+    const yearNum = parseInt(year, 10)
+    const currentYear = new Date().getFullYear()
+    return yearNum >= currentYear && yearNum <= currentYear + 10
+  };
+
   // CALCULAR TOTAL
   const getTotalPrice = () => {
     return items.reduce((total, item) => total + item.preco * item.quantity, 0)
@@ -80,13 +157,38 @@ const Cart = () => {
 
   const handleDeliverySubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!isValidCEP(delivery.zipCode)) {
+      alert('CEP inválido. Por favor, verifique o CEP informado.')
+      return
+    }
     setCurrentStep('payment')
   }
 
   // NOVO: handler para enviar pedido para API
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
+    if (!isValidCardNumber(payment.cardNumber)) {
+      alert('Número do cartão inválido. Por favor, verifique o número informado.')
+      return
+    }
+
+    if (!isValidCVV(payment.cardCode)) {
+      alert('CVV inválido. Por favor, verifique o CVV informado.')
+      return
+    }
+
+    if (!isValidMonth(payment.expiresMonth)) {
+      alert('Mês de expiração inválido. Por favor, verifique o mês informado.')
+      return
+    }
+
+    if (!isValidYear(payment.expiresYear)) {
+      alert('Ano de expiração inválido. Por favor, verifique o ano informado.')
+      return
+    }
+
     setOrderConfirmation({ orderId: '', isLoading: true, error: null })
     
     try {
@@ -167,7 +269,7 @@ const Cart = () => {
                 type="text"
                 id="receiver"
                 value={delivery.receiver}
-                onChange={(e) => setDelivery({ ...delivery, receiver: e.target.value })}
+                onChange={(e) => setDelivery({ ...delivery, receiver: formatOnlyLetters(e.target.value) })}
                 required
               />
 
@@ -185,7 +287,7 @@ const Cart = () => {
                 type="text"
                 id="city"
                 value={delivery.city}
-                onChange={(e) => setDelivery({ ...delivery, city: e.target.value })}
+                onChange={(e) => setDelivery({ ...delivery, city: formatOnlyLetters(e.target.value) })}
                 required
               />
 
@@ -196,8 +298,8 @@ const Cart = () => {
                     type="text"
                     id="zipCode"
                     value={delivery.zipCode}
-                    onChange={(e) => setDelivery({ ...delivery, zipCode: e.target.value })}
-                    maxLength={9}
+                    onChange={(e) => setDelivery({ ...delivery, zipCode: formatCEP(e.target.value) })}
+                    placeholder='00000-000'
                     required
                   />
                 </S.InputGroup>
@@ -208,7 +310,7 @@ const Cart = () => {
                     type="text"
                     id="number"
                     value={delivery.number}
-                    onChange={(e) => setDelivery({ ...delivery, number: e.target.value })}
+                    onChange={(e) => setDelivery({ ...delivery, number: formatOnlyNumbers(e.target.value) })}
                     required
                   />
                 </S.InputGroup>
@@ -240,7 +342,7 @@ const Cart = () => {
                 type="text"
                 id="cardName"
                 value={payment.cardName}
-                onChange={(e) => setPayment({ ...payment, cardName: e.target.value })}
+                onChange={(e) => setPayment({ ...payment, cardName: formatOnlyLetters(e.target.value) })}
                 required
               />
 
@@ -251,7 +353,7 @@ const Cart = () => {
                     type="text"
                     id="cardNumber"
                     value={payment.cardNumber}
-                    onChange={(e) => setPayment({ ...payment, cardNumber: e.target.value })}
+                    onChange={(e) => setPayment({ ...payment, cardNumber: formatCardNumber(e.target.value) })}
                     maxLength={16}
                     required
                   />
@@ -263,7 +365,7 @@ const Cart = () => {
                     type="text"
                     id="cardCode"
                     value={payment.cardCode}
-                    onChange={(e) => setPayment({ ...payment, cardCode: e.target.value })}
+                    onChange={(e) => setPayment({ ...payment, cardCode: formatCVV(e.target.value) })}
                     maxLength={3}
                     required
                   />
@@ -277,7 +379,7 @@ const Cart = () => {
                     type="text"
                     id="expiresMonth"
                     value={payment.expiresMonth}
-                    onChange={(e) => setPayment({ ...payment, expiresMonth: e.target.value })}
+                    onChange={(e) => setPayment({ ...payment, expiresMonth: formatMonth(e.target.value) })}
                     maxLength={2}
                     placeholder="MM"
                     required
@@ -290,7 +392,7 @@ const Cart = () => {
                     type="text"
                     id="expiresYear"
                     value={payment.expiresYear}
-                    onChange={(e) => setPayment({ ...payment, expiresYear: e.target.value })}
+                    onChange={(e) => setPayment({ ...payment, expiresYear: formatYear(e.target.value) })}
                     maxLength={4}
                     placeholder="AAAA"
                     required
